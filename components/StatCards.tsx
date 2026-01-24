@@ -13,7 +13,7 @@ const StatCards: React.FC<StatCardsProps> = ({ assets }) => {
         <div key={asset.symbol} className="bg-[#111] p-6 rounded-[28px] border border-white/5 flex flex-col gap-6 relative overflow-hidden group hover:border-white/10 transition-all">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src={asset.icon} alt={asset.symbol} className="w-8 h-8 rounded-full object-cover" />
+              <span className="text-2xl leading-none">{asset.icon}</span>
               <span className="text-base font-heading font-black text-white tracking-tight uppercase">{asset.symbol}</span>
             </div>
             {/* Badge: Gradiente Amarelo para Branco, texto preto maior (14px) */}
@@ -23,7 +23,7 @@ const StatCards: React.FC<StatCardsProps> = ({ assets }) => {
               </span>
             </div>
           </div>
-
+          
           <div className="space-y-4">
             <div className="flex flex-col">
               <span className="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-1">QTD. TOKENS</span>

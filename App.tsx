@@ -7,12 +7,12 @@ const App: React.FC = () => {
   const [aporte, setAporte] = useState(1000);
   const [holders, setHolders] = useState(1000);
   const [ticket, setTicket] = useState(1000);
-
-  // 2. DADOS DE MERCADO LIVE (READ-ONLY - SYNC VIA ORACLE)
-  const [marketCap, setMarketCap] = useState(42000); // Mock inicial conforme solicitado
-  const [supply, setSupply] = useState(100000000); // 100M Mock
-  const [bdcPrice, setBdcPrice] = useState(0.00042); // $0.00042 Mock
-
+  
+  // 2. DADOS DE MERCADO LIVE (ORACLE DE ESTADO - VERSÃO ESTÁVEL)
+  const [marketCap, setMarketCap] = useState(42000); 
+  const [supply, setSupply] = useState(600000000); // Ajustado para 600M conforme solicitado
+  const [bdcPrice, setBdcPrice] = useState(0.00042); 
+  
   const [prices, setPrices] = useState({
     bitcoin: 89360,
     ethereum: 2940.54,
@@ -22,25 +22,28 @@ const App: React.FC = () => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<any>(null);
 
-  // 3. INTEGRAÇÃO APIs REAL-TIME (INTERVALO RÍGIDO DE 10S)
+  // 3. INTEGRAÇÃO APIs REAL-TIME (SYNC TOTAL 10S)
   const fetchPrices = async () => {
     try {
-      // DexScreener/Birdeye Proxy - Bodecoin (BDC) na Solana
-      const bdcResponse = await fetch('https://api.dexscreener.com/latest/dex/tokens/gsf3ryndwyt6txgg1donwjvr1cdnirbdwaf8f8sdba5u');
+      // BDC Oracle - DexScreener (Contrato: AeAQdgjGqtHErysb5FBvUxNxmob2mVBGnEXdmULJ7dH9)
+      const bdcResponse = await fetch('https://api.dexscreener.com/latest/dex/tokens/AeAQdgjGqtHErysb5FBvUxNxmob2mVBGnEXdmULJ7dH9');
       const bdcData = await bdcResponse.json();
-
+      
       if (bdcData.pairs && bdcData.pairs[0]) {
         const pair = bdcData.pairs[0];
         const price = parseFloat(pair.priceUsd);
         if (!isNaN(price)) {
           setBdcPrice(price);
-          const currentMC = pair.fdv || (price * 600000000);
+          // O Supply é fixado em 600.000.000 para a simulação de tokenomics
+          const fixedSupply = 600000000;
+          setSupply(fixedSupply);
+          // O Market Cap é calculado com base no preço real e no supply fixo de 600M
+          const currentMC = price * fixedSupply; 
           setMarketCap(currentMC);
-          setSupply(currentMC / price);
         }
       }
 
-      // CoinGecko Oracle - BTC/ETH/SOL
+      // Market Oracle - CoinGecko (BTC, ETH, SOL)
       const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd');
       const data = await response.json();
       if (data.bitcoin) {
@@ -51,38 +54,48 @@ const App: React.FC = () => {
         });
       }
     } catch (error) {
-      console.warn('Sync Oracle Offline. Utilizando cache persistente.');
+      console.warn('Oracle offline. Utilizando cache.');
     }
   };
 
   useEffect(() => {
     fetchPrices();
-    const interval = setInterval(fetchPrices, 10000);
+    const interval = setInterval(fetchPrices, 10000); 
     return () => clearInterval(interval);
   }, []);
 
   const isActive = aporte > 0;
-
-  // 4. MOTOR MATEMÁTICO (FÓRMULAS DE PROTOCOLO SOLICITADAS)
+  
+  // 4. MOTOR MATEMÁTICO (LOGICA DE PROJEÇÃO v7.5.0)
   const getStatsAtMonth = (m: number) => {
     if (!isActive) return { total: 0, base: 0, yieldVal: 0, price: 0, mcap: 0, holdersCount: 0 };
+    
     const currentHolders = holders * m;
-    const MultiplicadorMercado = Math.pow(1.18, m) * 100;
+    
+    // Multiplicador de escala da rede preservado
+    const MultiplicadorMercado = Math.pow(1.18, m) * 100; 
+    
+    // Fórmula de Market Cap Alvo original
     const marketCapAlvo = (aporte * currentHolders / ticket) * MultiplicadorMercado + marketCap;
+    
+    // Preço Projetado baseado no supply fixo de 600M
     const precoProjetado = supply > 0 ? marketCapAlvo / supply : 0;
+    
+    // Patrimônio Total (ROI + 2.1% Staking Yield mensal)
     const tokensIniciais = aporte / bdcPrice;
     const yieldFactor = Math.pow(1.021, m);
     const finalWealth = (tokensIniciais * yieldFactor) * precoProjetado;
+    
     const baseVal = tokensIniciais * precoProjetado;
     const yieldIncentivo = finalWealth - baseVal;
-
-    return {
-      total: finalWealth,
-      base: baseVal,
-      yieldVal: yieldIncentivo,
-      price: precoProjetado,
-      mcap: marketCapAlvo,
-      holdersCount: currentHolders
+    
+    return { 
+      total: finalWealth, 
+      base: baseVal, 
+      yieldVal: yieldIncentivo, 
+      price: precoProjetado, 
+      mcap: marketCapAlvo, 
+      holdersCount: currentHolders 
     };
   };
 
@@ -93,6 +106,7 @@ const App: React.FC = () => {
 
   const calculateRowStats = (name: string) => {
     if (!isActive) return { vStr: "0% | 0% | 0%", eStr: "$0 | $0 | $0", roi: "0.00%", m12v: 0, m24v: 0, m36v: 0 };
+    
     let m12, m24, m36;
     if (name === 'BDC') {
       m12 = getStatsAtMonth(12).total;
@@ -105,9 +119,11 @@ const App: React.FC = () => {
     } else { // BTC
       m12 = aporte * 1.25; m24 = aporte * 1.55; m36 = aporte * 2.10;
     }
+
     const vStr = `+${(((m12 / aporte) - 1) * 100).toFixed(0)}% | +${(((m24 / aporte) - 1) * 100).toFixed(0)}% | +${(((m36 / aporte) - 1) * 100).toFixed(0)}%`;
     const eStr = `$${m12.toLocaleString(undefined, { maximumFractionDigits: 0 })} | $${m24.toLocaleString(undefined, { maximumFractionDigits: 0 })} | $${m36.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
     const roi = (m36 / aporte) > 100 ? `${(m36 / aporte).toFixed(0)}x` : `${(((m36 / aporte) - 1) * 100).toFixed(2)}%`;
+
     return { vStr, eStr, roi, m12v: m12, m24v: m24, m36v: m36 };
   };
 
@@ -119,7 +135,7 @@ const App: React.FC = () => {
   const prataPct = isActive ? Math.min(100, (bdcRow.m24v / patrimonioProjetadoTotal) * 100) : 0;
   const ouroPct = isActive ? 100 : 0;
 
-  // 5. CHART COMPONENT
+  // 5. CHART ENGINE
   useEffect(() => {
     if (!chartRef.current) return;
     if (chartInstance.current) chartInstance.current.destroy();
@@ -159,10 +175,7 @@ const App: React.FC = () => {
     const externalTooltipHandler = (context: any) => {
       const { chart, tooltip } = context;
       const tooltipEl = getOrCreateTooltip(chart);
-      if (tooltip.opacity === 0) {
-        tooltipEl.style.opacity = 0;
-        return;
-      }
+      if (tooltip.opacity === 0) { tooltipEl.style.opacity = 0; return; }
       if (tooltip.body) {
         const titleLines = tooltip.title || [];
         const dataMap: any = {};
@@ -181,11 +194,11 @@ const App: React.FC = () => {
           <div style="display: flex; flex-direction: column; gap: 8px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-family: Montserrat; font-weight: 700; font-size: 10px; color: #A855F7;">VALOR POSIÇÃO</span>
-              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: 13px;">$${baseAtivo.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: 13px;">$${baseAtivo.toLocaleString(undefined, {maximumFractionDigits: 0})}</span>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-family: Montserrat; font-weight: 700; font-size: 10px; color: #06B6D4;">STAKING YIELD</span>
-              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: 13px;">+$ ${yieldIncentivo.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: 13px;">+$ ${yieldIncentivo.toLocaleString(undefined, {maximumFractionDigits: 0})}</span>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-family: Montserrat; font-weight: 700; font-size: 10px; color: #F97316;">HOLDERS TOTAIS</span>
@@ -198,7 +211,7 @@ const App: React.FC = () => {
           </div>
           <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px; margin-top: 12px; text-align: center;">
             <div style="font-family: Montserrat; font-weight: 900; font-size: 9px; color: #777; margin-bottom: 2px;">PATRIMÔNIO TOTAL:</div>
-            <div style="font-family: Montserrat; font-weight: 900; font-size: 22px; color: #FFC107;">$ ${total.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+            <div style="font-family: Montserrat; font-weight: 900; font-size: 22px; color: #FFC107;">$ ${total.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
           </div>
         `;
       }
@@ -209,13 +222,10 @@ const App: React.FC = () => {
       let targetX = positionX + tooltip.caretX;
       let targetY = positionY + tooltip.caretY;
       const hMargin = 15;
-      if (targetX - tooltipWidth / 2 < hMargin) {
-        targetX = tooltipWidth / 2 + hMargin;
-      } else if (targetX + tooltipWidth / 2 > containerWidth - hMargin) {
-        targetX = containerWidth - tooltipWidth / 2 - hMargin;
-      }
+      if (targetX - tooltipWidth / 2 < hMargin) { targetX = tooltipWidth / 2 + hMargin; } 
+      else if (targetX + tooltipWidth / 2 > containerWidth - hMargin) { targetX = containerWidth - tooltipWidth / 2 - hMargin; }
       const vMargin = 15;
-      let translateY = '-110%';
+      let translateY = '-110%'; 
       if (targetY - tooltipHeight - vMargin < 0) { translateY = '15%'; }
       tooltipEl.style.opacity = 1;
       tooltipEl.style.left = targetX + 'px';
@@ -244,7 +254,7 @@ const App: React.FC = () => {
         plugins: { legend: { display: false }, tooltip: { enabled: false, external: externalTooltipHandler } },
         scales: {
           x: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#666', font: { size: isMobile ? 8 : 12, weight: 'bold' } } },
-          y: { position: 'left', grid: { color: 'rgba(255, 255, 255, 0.06)' }, beginAtZero: true, ticks: { color: '#FFF', font: { size: isMobile ? 8 : 14, weight: '900' }, callback: (v: any) => v >= 1000000 ? `$${(v / 1000000).toFixed(1)}M` : `$${(v / 1000).toFixed(0)}K` } },
+          y: { position: 'left', grid: { color: 'rgba(255, 255, 255, 0.06)' }, beginAtZero: true, ticks: { color: '#FFF', font: { size: isMobile ? 8 : 14, weight: '900' }, callback: (v: any) => v >= 1000000 ? `$${(v/1000000).toFixed(1)}M` : `$${(v/1000).toFixed(0)}K` } },
           y1: { position: 'right', display: true, grid: { drawOnChartArea: false }, ticks: { color: '#22C55E', font: { size: isMobile ? 8 : 11, weight: 'bold' }, callback: (v: any) => `$${v.toFixed(4)}` } },
           y2: { position: 'right', display: false, grid: { drawOnChartArea: false } }
         }
@@ -267,19 +277,18 @@ const App: React.FC = () => {
         <div className="flex flex-col lg:flex-row gap-12 items-stretch">
           {/* ASIDE REORDENADO NO MOBILE */}
           <aside className="w-full lg:w-80 flex flex-col gap-8 lg:gap-0">
-            {/* VÍDEO: Segundo elemento a aparecer no mobile (order-1) */}
+            {/* VÍDEO: Segundo elemento a aparecer no mobile */}
             <div className="order-1 lg:order-2 lg:mt-8 bg-[#111] rounded-[24px] border border-white/5 overflow-hidden shadow-2xl aspect-video relative group">
-              <video autoPlay loop muted playsInline className="w-full h-full object-cover transition-all duration-700">
+              <video autoPlay loop muted playsInline className="w-full h-full object-cover">
                 <source src="/grok-video-1f6c1d12-0d59-4dc3-a7ec-a9cf0ea8b5b7 (1).mp4" type="video/mp4" />
               </video>
-              <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
               <div className="absolute bottom-4 left-4 flex items-center gap-2">
                 <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
                 <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/70">Quant AI System Live</span>
               </div>
             </div>
 
-            {/* PARÂMETROS: Terceiro elemento no mobile (order-2) */}
+            {/* PARÂMETROS: Terceiro elemento no mobile */}
             <div className="order-2 lg:order-1 bg-[#111] p-8 rounded-[24px] border border-white/5 shadow-2xl">
               <h2 className="text-gold font-heading font-black uppercase text-[12px] tracking-[0.2em] border-b border-white/5 pb-5 mb-8">
                 Parâmetros do sniper
@@ -297,16 +306,16 @@ const App: React.FC = () => {
                       {input.label}
                       {input.info && <span className="text-[7px] text-white/20">{input.info}</span>}
                     </label>
-                    <input
-                      type="number"
-                      value={input.val}
+                    <input 
+                      type="number" 
+                      value={input.val} 
                       onChange={(e) => input.set && input.set(Number(e.target.value))}
                       readOnly={input.readOnly}
                       className={`bg-black border ${input.readOnly ? 'border-white/5 text-white/30 cursor-not-allowed' : 'border-white/10 text-white'} p-3 rounded-xl w-full font-mono text-[13px] focus:outline-none transition-all`}
                     />
                     <div className="flex justify-start px-1">
                       <span className="text-[9px] text-white/50 font-mono font-bold uppercase tracking-tight">
-                        {input.unit} {input.val.toLocaleString('pt-BR')}
+                          {input.unit} {input.val.toLocaleString('pt-BR')}
                       </span>
                     </div>
                   </div>
@@ -315,13 +324,13 @@ const App: React.FC = () => {
                   <label className="text-[10px] text-gold uppercase font-black tracking-wider">Qtd. BDC (Snipado)</label>
                   <input readOnly value={(bdcPrice > 0 ? aporte / bdcPrice : 0).toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} className="bg-gold/10 border border-gold/50 p-3 rounded-xl w-full text-gold font-mono text-[13px] cursor-default" />
                   <div className="flex justify-start px-1">
-                    <span className="text-[8px] text-gold/60 font-mono font-bold uppercase tracking-widest animate-pulse-gold">PREÇO LIVE: ${bdcPrice.toFixed(6)}</span>
+                      <span className="text-[8px] text-gold/60 font-mono font-bold uppercase tracking-widest animate-pulse-gold">PREÇO LIVE: ${bdcPrice.toFixed(6)}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* BOTÃO: Quarto elemento no mobile (order-3) */}
+            {/* BOTÃO: Quarto elemento no mobile */}
             <button className="order-3 lg:mt-auto lg:pt-8 bg-gold text-black w-full py-5 rounded-2xl font-heading font-black text-sm uppercase tracking-widest hover:brightness-110 active:scale-[0.98] transition-all shadow-[0_10px_30px_rgba(255,193,7,0.3)]">
               EXECUTAR SNIPING
             </button>
@@ -340,19 +349,19 @@ const App: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { id: 'bdc', name: 'BDC', price: bdcPrice, icon: '/FAVICON.png', theme: 'emerald' },
-                { id: 'btc', name: 'BTC', price: prices.bitcoin, icon: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png', theme: 'gold' },
-                { id: 'eth', name: 'ETH', price: prices.ethereum, icon: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png', theme: 'orange' },
-                { id: 'sol', name: 'SOL', price: prices.solana, icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png', theme: 'cyan' },
+                { id: 'bdc', name: 'BDC', price: bdcPrice, icon: '🐐', theme: 'emerald' },
+                { id: 'btc', name: 'BTC', price: prices.bitcoin, icon: '₿', theme: 'gold' },
+                { id: 'eth', name: 'ETH', price: prices.ethereum, icon: 'Ξ', theme: 'orange' },
+                { id: 'sol', name: 'SOL', price: prices.solana, icon: '◎', theme: 'cyan' },
               ].map(coin => (
                 <div key={coin.id} className="bg-[#111] p-6 rounded-[28px] border border-white/5 flex flex-col gap-6 relative transition-all hover:border-white/10 hover:-translate-y-1">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                      <img src={coin.icon} alt={coin.name} className="w-8 h-8 rounded-full object-cover" />
+                      <span className="text-2xl leading-none">{coin.icon}</span>
                       <span className="text-base font-heading font-black uppercase text-white tracking-tight">{coin.name}</span>
                     </div>
-                    <div className={`bg-gradient-to-r ${coin.theme === 'orange' ? 'from-orange-500' : coin.theme === 'emerald' ? 'from-emerald-500' : coin.theme === 'cyan' ? 'from-cyan-500' : 'from-[#facc15]'} to-white px-3 py-2 rounded-xl shadow-lg shrink-0`}>
-                      <span className="text-black text-[12px] font-mono font-black whitespace-nowrap">
+                    <div className={`bg-gradient-to-r ${coin.theme === 'orange' ? 'from-orange-500' : coin.theme === 'emerald' ? 'from-emerald-500' : coin.theme === 'cyan' ? 'from-cyan-500' : 'from-[#facc15]'} to-white px-5 py-2.5 rounded-xl shadow-lg`}>
+                      <span className="text-black text-[14px] font-mono font-black">
                         $ {coin.price.toLocaleString('pt-BR', { minimumFractionDigits: coin.id === 'bdc' ? 6 : 2 })}
                       </span>
                     </div>
@@ -360,14 +369,14 @@ const App: React.FC = () => {
                   <div className="space-y-4">
                     <div>
                       <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">QTD. TOKENS</div>
-                      <div className="text-[16px] font-heading font-black text-white leading-none tracking-tighter truncate">
+                      <div className="text-[18px] font-heading font-black text-white leading-none tracking-tighter">
                         {(aporte / coin.price).toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}
                       </div>
                     </div>
                     <div>
                       <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">VALOR EM DÓLAR</div>
-                      <div className="text-[16px] font-heading font-black text-white leading-none flex items-baseline gap-2 truncate">
-                        <span className="text-xs">$</span>
+                      <div className="text-[18px] font-heading font-black text-white leading-none flex items-baseline gap-2">
+                        <span className="text-sm">$</span>
                         <span>{aporte.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                       </div>
                     </div>
@@ -422,10 +431,10 @@ const App: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-[#222]">
                   {[
-                    { name: 'BDC', color: '#10b981', price: bdcPrice, icon: '/FAVICON.png' },
-                    { name: 'SOL', color: '#14F195', price: prices.solana, icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png' },
-                    { name: 'ETH', color: '#F97316', price: prices.ethereum, icon: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' },
-                    { name: 'BTC', color: '#FFC107', price: prices.bitcoin, icon: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png' },
+                    { name: 'BDC', color: '#10b981', price: bdcPrice, icon: '🐐' },
+                    { name: 'SOL', color: '#14F195', price: prices.solana, icon: '◎' },
+                    { name: 'ETH', color: '#F97316', price: prices.ethereum, icon: 'Ξ' },
+                    { name: 'BTC', color: '#FFC107', price: prices.bitcoin, icon: '₿' },
                   ].map(row => {
                     const stats = calculateRowStats(row.name);
                     const isBDC = row.name === 'BDC';
@@ -433,7 +442,7 @@ const App: React.FC = () => {
                     return (
                       <tr key={row.name} className="hover:bg-white/[0.02] transition-colors group">
                         <td className="p-6 flex items-center gap-3">
-                          <img src={row.icon} alt={row.name} className="w-6 h-6 rounded-full object-cover" />
+                          <span className="text-xl" style={{ color: row.color }}>{row.icon}</span>
                           <span className={`font-black ${textClass}`}>{row.name}</span>
                         </td>
                         <td className={`p-6 font-mono ${textClass}`}>$ {aporte.toLocaleString()}</td>
