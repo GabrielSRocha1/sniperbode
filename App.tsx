@@ -66,20 +66,25 @@ const App: React.FC = () => {
 
   const isActive = aporte > 0;
 
-  // 4. MOTOR MATEMÁTICO (LOGICA DE PROJEÇÃO v7.5.0)
+  // 4. MOTOR MATEMÁTICO (LOGICA DE PROJEÇÃO v8.0.0 - FÓRMULA SNIPER)
   const getStatsAtMonth = (m: number) => {
     if (!isActive) return { total: 0, base: 0, yieldVal: 0, price: 0, mcap: 0, holdersCount: 0 };
 
+    // --- CONFIGURAÇÃO DA FÓRMULA SNIPER (BNB BENCHMARK - 8,000% GAIN) ---
+    const MULTIPLICADOR_BNB = 80;
+    const ALVO_CONVERSAO = 15000;
+
+    // No simulador, meta de usuários é o crescimento projetado ao longo dos meses
     const currentHolders = holders * m;
 
-    // Multiplicador de escala da rede preservado
-    const MultiplicadorMercado = Math.pow(1.18, m) * 100;
+    // Fator de Intensidade da Comunidade (Quanto mais perto dos 15k, mais próximo do ROI da BNB)
+    const fatorComunidade = currentHolders / ALVO_CONVERSAO;
 
-    // Fórmula de Market Cap Alvo original
-    const marketCapAlvo = (aporte * currentHolders / ticket) * MultiplicadorMercado + marketCap;
+    // Preço Projetado baseado no potencial histórico da BNB
+    const precoProjetado = bdcPrice * (1 + (MULTIPLICADOR_BNB * fatorComunidade));
 
-    // Preço Projetado baseado no supply fixo de 600M
-    const precoProjetado = supply > 0 ? marketCapAlvo / supply : 0;
+    // Cálculo de Market Cap comparativo
+    const marketCapProjetado = precoProjetado * supply;
 
     // Patrimônio Total (ROI + 2.1% Staking Yield mensal)
     const tokensIniciais = aporte / bdcPrice;
@@ -94,7 +99,7 @@ const App: React.FC = () => {
       base: baseVal,
       yieldVal: yieldIncentivo,
       price: precoProjetado,
-      mcap: marketCapAlvo,
+      mcap: marketCapProjetado,
       holdersCount: currentHolders
     };
   };
@@ -481,7 +486,7 @@ const App: React.FC = () => {
       </div>
 
       <footer className="mt-28 mb-10 text-[11px] text-gray-900 font-black uppercase tracking-[1.2em] opacity-30 text-center flex flex-col gap-2">
-        <span>Bode Sniper Quant System v7.5.0 - Oracle Live Logic</span>
+        <span>Bode Sniper Quant System v8.0.0 - Oracle Live Logic</span>
         <span className="tracking-[0.6em] text-[9px]">Apenas para fins de simulação e modelagem matemática.</span>
       </footer>
     </div>
