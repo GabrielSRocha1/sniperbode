@@ -192,30 +192,30 @@ const App: React.FC = () => {
 
         tooltipEl.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: ${isMobile ? '6px' : '10px'}; margin-bottom: ${isMobile ? '8px' : '12px'};">
-            <span style="font-family: Montserrat; font-weight: 900; font-size: ${isMobile ? '9px' : '11px'}; color: #888; text-transform: uppercase;">MÊS ${month}</span>
+            <span style="font-family: Montserrat; font-weight: 500; font-size: ${isMobile ? '9px' : '11px'}; color: #888; text-transform: uppercase;">MÊS ${month}</span>
             <span style="font-family: Montserrat; font-weight: 900; font-size: ${isMobile ? '7px' : '9px'}; color: #FFC107; text-transform: uppercase;">QUANT ORACLE</span>
           </div>
           <div style="display: flex; flex-direction: column; gap: ${isMobile ? '4px' : '8px'};">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-family: Montserrat; font-weight: 700; font-size: ${fontSizeLabel}; color: #A855F7;">POSIÇÃO</span>
-              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: ${fontSizeValue};">$${baseAtivo.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+              <span style="font-family: JetBrains Mono; font-weight: 500; font-size: ${fontSizeValue};">$${baseAtivo.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-family: Montserrat; font-weight: 700; font-size: ${fontSizeLabel}; color: #06B6D4;">YIELD</span>
-              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: ${fontSizeValue};">+$ ${yieldIncentivo.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+              <span style="font-family: JetBrains Mono; font-weight: 500; font-size: ${fontSizeValue};">+$ ${yieldIncentivo.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-family: Montserrat; font-weight: 700; font-size: ${fontSizeLabel}; color: #F97316;">HOLDERS</span>
-              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: ${fontSizeValue};">${holdersCount.toLocaleString()}</span>
+              <span style="font-family: JetBrains Mono; font-weight: 500; font-size: ${fontSizeValue};">${holdersCount.toLocaleString()}</span>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-family: Montserrat; font-weight: 700; font-size: ${fontSizeLabel}; color: #22C55E;">PREÇO</span>
-              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: ${fontSizeValue};">$${realPrice.toFixed(5)}</span>
+              <span style="font-family: JetBrains Mono; font-weight: 500; font-size: ${fontSizeValue};">$${realPrice.toFixed(5)}</span>
             </div>
           </div>
           <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: ${isMobile ? '6px' : '10px'}; margin-top: ${isMobile ? '8px' : '12px'}; text-align: center;">
-            <div style="font-family: Montserrat; font-weight: 900; font-size: ${isMobile ? '8px' : '9px'}; color: #777; margin-bottom: 2px;">TOTAL:</div>
-            <div style="font-family: Montserrat; font-weight: 900; font-size: ${fontSizeTotal}; color: #FFC107;">$ ${total.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+            <div style="font-family: Montserrat; font-weight: 700; font-size: ${isMobile ? '8px' : '9px'}; color: #777; margin-bottom: 2px;">TOTAL:</div>
+            <div style="font-family: Montserrat; font-weight: 500; font-size: ${fontSizeTotal}; color: #FFC107;">$ ${total.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
           </div>
         `;
       }
@@ -257,9 +257,9 @@ const App: React.FC = () => {
         interaction: { mode: 'index', intersect: false },
         plugins: { legend: { display: false }, tooltip: { enabled: false, external: externalTooltipHandler } },
         scales: {
-          x: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#666', font: { size: isMobile ? 8 : 12, weight: 'bold' } } },
-          y: { position: 'left', grid: { color: 'rgba(255, 255, 255, 0.06)' }, beginAtZero: true, ticks: { color: '#FFF', font: { size: isMobile ? 8 : 14, weight: '900' }, callback: (v: any) => v >= 1000000 ? `$${(v / 1000000).toFixed(1)}M` : `$${(v / 1000).toFixed(0)}K` } },
-          y1: { position: 'right', display: true, grid: { drawOnChartArea: false }, ticks: { color: '#22C55E', font: { size: isMobile ? 8 : 11, weight: 'bold' }, callback: (v: any) => `$${v.toFixed(4)}` } },
+          x: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#666', font: { size: isMobile ? 8 : 12, weight: 'normal' } } },
+          y: { position: 'left', grid: { color: 'rgba(255, 255, 255, 0.06)' }, beginAtZero: true, ticks: { color: '#FFF', font: { size: isMobile ? 8 : 14, weight: '500' }, callback: (v: any) => v >= 1000000 ? `$${(v / 1000000).toFixed(1)}M` : `$${(v / 1000).toFixed(0)}K` } },
+          y1: { position: 'right', display: true, grid: { drawOnChartArea: false }, ticks: { color: '#22C55E', font: { size: isMobile ? 8 : 11, weight: 'normal' }, callback: (v: any) => `$${v.toFixed(4)}` } },
           y2: { position: 'right', display: false, grid: { drawOnChartArea: false } }
         }
       }
@@ -318,7 +318,7 @@ const App: React.FC = () => {
                       className={`bg-black border ${input.readOnly ? 'border-white/5 text-white/30 cursor-not-allowed' : 'border-white/10 text-white'} p-3 rounded-xl w-full font-mono text-[13px] focus:outline-none transition-all`}
                     />
                     <div className="flex justify-start px-1">
-                      <span className="text-[9px] text-white/50 font-mono font-bold uppercase tracking-tight">
+                      <span className="text-[9px] text-white/50 font-mono font-medium uppercase tracking-tight">
                         {input.unit} {input.val.toLocaleString('pt-BR')}
                       </span>
                     </div>
@@ -328,7 +328,7 @@ const App: React.FC = () => {
                   <label className="text-[10px] text-gold uppercase font-black tracking-wider">Qtd. BDC (Snipado)</label>
                   <input readOnly value={(bdcPrice > 0 ? aporte / bdcPrice : 0).toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} className="bg-gold/10 border border-gold/50 p-3 rounded-xl w-full text-gold font-mono text-[13px] cursor-default" />
                   <div className="flex justify-start px-1">
-                    <span className="text-[8px] text-gold/60 font-mono font-bold uppercase tracking-widest animate-pulse-gold">PREÇO LIVE: ${bdcPrice.toFixed(6)}</span>
+                    <span className="text-[8px] text-gold/60 font-mono font-medium uppercase tracking-widest animate-pulse-gold">PREÇO LIVE: ${bdcPrice.toFixed(6)}</span>
                   </div>
                 </div>
               </div>
@@ -365,7 +365,7 @@ const App: React.FC = () => {
                       <span className="text-base font-heading font-black uppercase text-white tracking-tight">{coin.name}</span>
                     </div>
                     <div className={`bg-gradient-to-r ${coin.theme === 'orange' ? 'from-orange-500' : coin.theme === 'emerald' ? 'from-emerald-500' : coin.theme === 'cyan' ? 'from-cyan-500' : 'from-[#facc15]'} to-white px-5 py-2.5 rounded-xl shadow-lg`}>
-                      <span className="text-black text-[14px] font-mono font-black">
+                      <span className="text-black text-[14px] font-mono font-medium">
                         $ {coin.price.toLocaleString('pt-BR', { minimumFractionDigits: coin.id === 'bdc' ? 6 : 2 })}
                       </span>
                     </div>
@@ -373,13 +373,13 @@ const App: React.FC = () => {
                   <div className="space-y-4">
                     <div>
                       <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">QTD. TOKENS</div>
-                      <div className="text-[18px] font-heading font-black text-white leading-none tracking-tighter">
+                      <div className="text-[18px] font-heading font-medium text-white leading-none tracking-tighter">
                         {(aporte / coin.price).toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}
                       </div>
                     </div>
                     <div>
                       <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">VALOR EM DÓLAR</div>
-                      <div className="text-[18px] font-heading font-black text-white leading-none flex items-baseline gap-2">
+                      <div className="text-[18px] font-heading font-medium text-white leading-none flex items-baseline gap-2">
                         <span className="text-sm">$</span>
                         <span>{aporte.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                       </div>
@@ -398,7 +398,7 @@ const App: React.FC = () => {
               ].map((stat, i) => (
                 <div key={i} className={`p-6 rounded-[28px] border flex flex-col gap-2 transition-all hover:scale-105 ${stat.styles}`}>
                   <span className={`text-[10px] font-black uppercase tracking-wider opacity-70`}>{stat.label}</span>
-                  <span className={`text-[21px] font-heading font-black`}>{stat.val}</span>
+                  <span className={`text-[21px] font-heading font-medium`}>{stat.val}</span>
                 </div>
               ))}
             </div>
@@ -412,7 +412,7 @@ const App: React.FC = () => {
                 <div key={i} className="flex-1 flex flex-col gap-3">
                   <div className="flex justify-between items-center">
                     <span className="text-white font-bold">{h.label}</span>
-                    <span className="text-white font-bold">{h.val}</span>
+                    <span className="text-white font-medium">{h.val}</span>
                   </div>
                   <div className="h-1.5 bg-black rounded-full overflow-hidden shadow-inner">
                     <div className="h-full bg-gold transition-all duration-1000 shadow-[0_0_15px_rgba(255,193,7,0.6)]" style={{ width: `${h.pct}%` }}></div>
@@ -442,7 +442,7 @@ const App: React.FC = () => {
                   ].map(row => {
                     const stats = calculateRowStats(row.name);
                     const isBDC = row.name === 'BDC';
-                    const textClass = row.name === 'ETH' ? 'text-orange-500' : (isBDC ? 'text-emerald-400 font-black' : (row.name === 'BTC' ? 'text-gold' : (row.name === 'SOL' ? 'text-cyan-400' : 'text-white')));
+                    const textClass = row.name === 'ETH' ? 'text-orange-500' : (isBDC ? 'text-emerald-400 font-medium' : (row.name === 'BTC' ? 'text-gold' : (row.name === 'SOL' ? 'text-cyan-400' : 'text-white')));
                     return (
                       <tr key={row.name} className="hover:bg-white/[0.02] transition-colors group">
                         <td className="p-6 flex items-center gap-3">
@@ -451,9 +451,9 @@ const App: React.FC = () => {
                         </td>
                         <td className={`p-6 font-mono ${textClass}`}>$ {aporte.toLocaleString()}</td>
                         <td className={`p-6 font-mono ${textClass}`}>{(aporte / row.price).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</td>
-                        <td className={`p-6 text-center font-bold uppercase tracking-widest text-[10px] ${textClass}`}>{stats.vStr}</td>
-                        <td className={`p-6 text-center font-bold uppercase tracking-widest text-[10px] ${textClass}`}>{stats.eStr}</td>
-                        <td className={`p-6 font-mono font-black text-xs ${textClass}`}>{stats.roi}</td>
+                        <td className={`p-6 text-center font-medium uppercase tracking-widest text-[10px] ${textClass}`}>{stats.vStr}</td>
+                        <td className={`p-6 text-center font-medium uppercase tracking-widest text-[10px] ${textClass}`}>{stats.eStr}</td>
+                        <td className={`p-6 font-mono font-medium text-xs ${textClass}`}>{stats.roi}</td>
                       </tr>
                     );
                   })}
