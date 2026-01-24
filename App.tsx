@@ -163,10 +163,10 @@ const App: React.FC = () => {
         tooltipEl.style.pointerEvents = 'none';
         tooltipEl.style.position = 'absolute';
         tooltipEl.style.zIndex = '100';
-        tooltipEl.style.padding = isMobile ? '12px' : '20px';
+        tooltipEl.style.padding = isMobile ? '8px' : '20px';
         tooltipEl.style.boxShadow = '0 30px 60px rgba(0,0,0,0.9)';
         tooltipEl.style.transition = 'opacity 0.2s ease, transform 0.1s ease';
-        tooltipEl.style.width = isMobile ? '240px' : '320px';
+        tooltipEl.style.width = isMobile ? '180px' : '320px';
         chart.canvas.parentNode.appendChild(tooltipEl);
       }
       return tooltipEl;
@@ -186,32 +186,36 @@ const App: React.FC = () => {
         const total = baseAtivo + yieldIncentivo;
         const realPrice = dataMap['PREÇO PROJETADO'] || 0;
         const holdersCount = dataMap['HOLDERS TOTAIS'] || 0;
+        const fontSizeLabel = isMobile ? '8px' : '10px';
+        const fontSizeValue = isMobile ? '11px' : '13px';
+        const fontSizeTotal = isMobile ? '16px' : '22px';
+
         tooltipEl.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 12px;">
-            <span style="font-family: Montserrat; font-weight: 900; font-size: 11px; color: #888; text-transform: uppercase;">MÊS ${month}</span>
-            <span style="font-family: Montserrat; font-weight: 900; font-size: 9px; color: #FFC107; text-transform: uppercase;">QUANT ORACLE</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: ${isMobile ? '6px' : '10px'}; margin-bottom: ${isMobile ? '8px' : '12px'};">
+            <span style="font-family: Montserrat; font-weight: 900; font-size: ${isMobile ? '9px' : '11px'}; color: #888; text-transform: uppercase;">MÊS ${month}</span>
+            <span style="font-family: Montserrat; font-weight: 900; font-size: ${isMobile ? '7px' : '9px'}; color: #FFC107; text-transform: uppercase;">QUANT ORACLE</span>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; flex-direction: column; gap: ${isMobile ? '4px' : '8px'};">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-family: Montserrat; font-weight: 700; font-size: 10px; color: #A855F7;">VALOR POSIÇÃO</span>
-              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: 13px;">$${baseAtivo.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+              <span style="font-family: Montserrat; font-weight: 700; font-size: ${fontSizeLabel}; color: #A855F7;">POSIÇÃO</span>
+              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: ${fontSizeValue};">$${baseAtivo.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-family: Montserrat; font-weight: 700; font-size: 10px; color: #06B6D4;">STAKING YIELD</span>
-              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: 13px;">+$ ${yieldIncentivo.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+              <span style="font-family: Montserrat; font-weight: 700; font-size: ${fontSizeLabel}; color: #06B6D4;">YIELD</span>
+              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: ${fontSizeValue};">+$ ${yieldIncentivo.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-family: Montserrat; font-weight: 700; font-size: 10px; color: #F97316;">HOLDERS TOTAIS</span>
-              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: 13px;">${holdersCount.toLocaleString()}</span>
+              <span style="font-family: Montserrat; font-weight: 700; font-size: ${fontSizeLabel}; color: #F97316;">HOLDERS</span>
+              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: ${fontSizeValue};">${holdersCount.toLocaleString()}</span>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-family: Montserrat; font-weight: 700; font-size: 10px; color: #22C55E;">PREÇO PROJETADO</span>
-              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: 13px;">$${realPrice.toFixed(5)}</span>
+              <span style="font-family: Montserrat; font-weight: 700; font-size: ${fontSizeLabel}; color: #22C55E;">PREÇO</span>
+              <span style="font-family: JetBrains Mono; font-weight: bold; font-size: ${fontSizeValue};">$${realPrice.toFixed(5)}</span>
             </div>
           </div>
-          <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px; margin-top: 12px; text-align: center;">
-            <div style="font-family: Montserrat; font-weight: 900; font-size: 9px; color: #777; margin-bottom: 2px;">PATRIMÔNIO TOTAL:</div>
-            <div style="font-family: Montserrat; font-weight: 900; font-size: 22px; color: #FFC107;">$ ${total.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+          <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: ${isMobile ? '6px' : '10px'}; margin-top: ${isMobile ? '8px' : '12px'}; text-align: center;">
+            <div style="font-family: Montserrat; font-weight: 900; font-size: ${isMobile ? '8px' : '9px'}; color: #777; margin-bottom: 2px;">TOTAL:</div>
+            <div style="font-family: Montserrat; font-weight: 900; font-size: ${fontSizeTotal}; color: #FFC107;">$ ${total.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
           </div>
         `;
       }
