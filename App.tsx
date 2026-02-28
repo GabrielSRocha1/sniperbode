@@ -70,9 +70,9 @@ const App: React.FC = () => {
   const getStatsAtMonth = (m: number) => {
     if (!isActive) return { total: 0, base: 0, yieldVal: 0, price: 0, mcap: 0, holdersCount: 0 };
 
-    // --- CONFIGURAÇÃO DA FÓRMULA SNIPER (BNB BENCHMARK - 8,000% GAIN) ---
-    const MULTIPLICADOR_BNB = 80;
-    const ALVO_CONVERSAO = 15000;
+    // --- CONFIGURAÇÃO DA FÓRMULA SNIPER (BDC BENCHMARK - 12,000% GAIN) ---
+    const MULTIPLICADOR_BNB = 120;
+    const ALVO_CONVERSAO = 36000;
 
     // No simulador, meta de usuários é o crescimento projetado ao longo dos meses
     const currentHolders = holders * m;
