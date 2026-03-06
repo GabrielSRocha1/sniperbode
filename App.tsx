@@ -70,8 +70,8 @@ const App: React.FC = () => {
   const getStatsAtMonth = (m: number) => {
     if (!isActive) return { total: 0, base: 0, yieldVal: 0, price: 0, mcap: 0, holdersCount: 0 };
 
-    // --- CONFIGURAÇÃO DA FÓRMULA SNIPER (BNB BENCHMARK - 8,000% GAIN) ---
-    const MULTIPLICADOR_BNB = 80;
+    // --- CONFIGURAÇÃO DA FÓRMULA SNIPER (BNB BENCHMARK - 12,000% GAIN) ---
+    const MULTIPLICADOR_BNB = 120;
     const ALVO_CONVERSAO = 15000;
 
     // No simulador, meta de usuários é o crescimento projetado ao longo dos meses
@@ -311,29 +311,29 @@ const App: React.FC = () => {
                   { label: 'Supply Circulante', val: supply, set: null, unit: 'Tokens', readOnly: true, info: 'Pool Dynamics' },
                 ].map((input, idx) => (
                   <div key={idx} className="flex flex-col gap-1.5">
-                    <label className="text-[10px] text-gray-400 uppercase font-black tracking-wider flex justify-between">
+                    <label className="text-[11px] text-gray-400 uppercase font-black tracking-wider flex justify-between">
                       {input.label}
-                      {input.info && <span className="text-[7px] text-white/20">{input.info}</span>}
+                      {input.info && <span className="text-[8px] text-white/20">{input.info}</span>}
                     </label>
                     <input
                       type="number"
                       value={input.val}
                       onChange={(e) => input.set && input.set(Number(e.target.value))}
                       readOnly={input.readOnly}
-                      className={`bg-black border ${input.readOnly ? 'border-white/5 text-white/30 cursor-not-allowed' : 'border-white/10 text-white'} p-3 rounded-xl w-full font-mono text-[13px] focus:outline-none transition-all`}
+                      className={`bg-black border ${input.readOnly ? 'border-white/5 text-white/30 cursor-not-allowed' : 'border-white/10 text-white'} p-3 rounded-xl w-full font-mono text-[14px] focus:outline-none transition-all`}
                     />
                     <div className="flex justify-start px-1">
-                      <span className="text-[9px] text-white/50 font-mono font-medium uppercase tracking-tight">
+                      <span className="text-[10px] text-white/50 font-mono font-medium uppercase tracking-tight">
                         {input.unit} {input.val.toLocaleString('pt-BR')}
                       </span>
                     </div>
                   </div>
                 ))}
                 <div className="flex flex-col gap-1.5 pt-2 border-t border-white/5">
-                  <label className="text-[10px] text-gold uppercase font-black tracking-wider">Qtd. BDC (Snipado)</label>
-                  <input readOnly value={(bdcPrice > 0 ? aporte / bdcPrice : 0).toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} className="bg-gold/10 border border-gold/50 p-3 rounded-xl w-full text-gold font-mono text-[13px] cursor-default" />
+                  <label className="text-[11px] text-gold uppercase font-black tracking-wider">Qtd. BDC (Snipado)</label>
+                  <input readOnly value={(bdcPrice > 0 ? aporte / bdcPrice : 0).toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} className="bg-gold/10 border border-gold/50 p-3 rounded-xl w-full text-gold font-mono text-[14px] cursor-default" />
                   <div className="flex justify-start px-1">
-                    <span className="text-[8px] text-gold/60 font-mono font-medium uppercase tracking-widest animate-pulse-gold">PREÇO LIVE: ${bdcPrice.toFixed(6)}</span>
+                    <span className="text-[9px] text-gold/60 font-mono font-medium uppercase tracking-widest animate-pulse-gold">PREÇO LIVE: ${bdcPrice.toFixed(6)}</span>
                   </div>
                 </div>
               </div>
@@ -369,10 +369,11 @@ const App: React.FC = () => {
                       <img src={coin.icon} alt={coin.name} className="w-8 h-8 rounded-full object-cover" />
                       <span className="text-base font-heading font-black uppercase text-white tracking-tight">{coin.name}</span>
                     </div>
-                    <div className={`bg-gradient-to-r ${coin.theme === 'orange' ? 'from-orange-500' : coin.theme === 'emerald' ? 'from-emerald-500' : coin.theme === 'cyan' ? 'from-cyan-500' : 'from-[#facc15]'} to-white px-5 py-2.5 rounded-xl shadow-lg`}>
-                      <span className="text-black text-[14px] font-mono font-medium">
-                        $ {coin.price.toLocaleString('pt-BR', { minimumFractionDigits: coin.id === 'bdc' ? 6 : 2 })}
-                      </span>
+                    <div className={`bg-gradient-to-r ${coin.theme === 'orange' ? 'from-orange-500' : coin.theme === 'emerald' ? 'from-emerald-500' : coin.theme === 'cyan' ? 'from-cyan-500' : 'from-[#facc15]'} to-white px-3 py-1.5 rounded-xl shadow-lg shrink-0`}>
+                      <div className="flex items-baseline gap-[1.5px] text-black text-[13px] font-mono font-medium whitespace-nowrap leading-none">
+                        <span>$</span>
+                        <span>{coin.price.toLocaleString('pt-BR', { minimumFractionDigits: coin.id === 'bdc' ? 6 : 2 })}</span>
+                      </div>
                     </div>
                   </div>
                   <div className="space-y-4">
@@ -427,7 +428,7 @@ const App: React.FC = () => {
             </div>
 
             <div className="overflow-x-auto border border-white/5 rounded-[24px] bg-[#080808] shadow-2xl">
-              <table className="w-full text-[10px] text-left">
+              <table className="w-full text-[11px] text-left">
                 <thead className="bg-[#111] text-white font-black uppercase tracking-[0.2em] border-b border-white/5">
                   <tr>
                     <th className="p-6">Cripto</th>
@@ -456,9 +457,9 @@ const App: React.FC = () => {
                         </td>
                         <td className={`p-6 font-mono ${textClass}`}>$ {aporte.toLocaleString()}</td>
                         <td className={`p-6 font-mono ${textClass}`}>{(aporte / row.price).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</td>
-                        <td className={`p-6 text-center font-medium uppercase tracking-widest text-[10px] ${textClass}`}>{stats.vStr}</td>
-                        <td className={`p-6 text-center font-medium uppercase tracking-widest text-[10px] ${textClass}`}>{stats.eStr}</td>
-                        <td className={`p-6 font-mono font-medium text-xs ${textClass}`}>{stats.roi}</td>
+                        <td className={`p-6 text-center font-medium uppercase tracking-widest text-[11px] ${textClass}`}>{stats.vStr}</td>
+                        <td className={`p-6 text-center font-medium uppercase tracking-widest text-[11px] ${textClass}`}>{stats.eStr}</td>
+                        <td className={`p-6 font-mono font-medium text-[13px] ${textClass}`}>{stats.roi}</td>
                       </tr>
                     );
                   })}
